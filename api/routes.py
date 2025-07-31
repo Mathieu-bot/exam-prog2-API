@@ -11,7 +11,7 @@ def get_ping():
     return PlainTextResponse(f"pong", status_code=200)
 
 @router.get("/home") # Q2
-def get_hello():
+def get_home():
     with open("templates/home.html", "r", encoding="utf-8") as file:
         html_content = file.read()
     return Response(content=html_content, status_code=200, media_type="text/html")
