@@ -1,45 +1,39 @@
 import base64
-
 from fastapi import APIRouter, Request, Response, HTTPException
 from starlette.responses import PlainTextResponse, JSONResponse
-from models.post import Post, serialized_posts, post_list, serialized_posts
+from models.post import Post, serialized_posts, post_list
 
 router = APIRouter()
 
-@router.get("/ping") # Q1
+@router.get("/ping")  # Q1
 def get_ping():
-    return PlainTextResponse(f"pong", status_code=200)
+    return PlainTextResponse("pong", status_code=200)
 
-@router.get("/home") # Q2
+@router.get("/home")  # Q2
 def get_home():
     with open("templates/home.html", "r", encoding="utf-8") as file:
         html_content = file.read()
     return Response(content=html_content, status_code=200, media_type="text/html")
 
-@router.get("/{unknown}") # Q3
-def get_unknown(unknown: str):
-    with open("templates/not_found.html", "r", encoding="utf-8") as file:
-        html_content = file.read()
-    return Response(content=html_content, status_code=200, media_type="text/html")
+@router.post("/posts", status_code=201)  # Q4
+def post_posts(new_posts: list[Post]):
+    post_list.extend(new_posts)
+    return {"posts": serialized_posts()}
 
-
-@router.post("/posts", status_code=201) # Q4
-def post_posts(new_post: list[Post]):
-    post_list.extend(new_post)
-    return {"post": serialized_posts()}
-
-@router.get("/posts") # Q5
+@router.get("/posts")  # Q5
 def get_posts():
     return JSONResponse({"posts": serialized_posts()}, status_code=200)
 
 @router.put("/posts") # Q6
 def put_posts(new_posts: list[Post]):
     for new_post in new_posts:
+        exists = False
         for i, post in enumerate(post_list):
             if post.title == new_post.title:
                 post_list[i] = new_post
+                exists = True
                 break
-        else:
+        if not exists:
             post_list.append(new_post)
     return JSONResponse({"posts": serialized_posts()}, status_code=200)
 
@@ -64,3 +58,10 @@ def get_ping_auth(request: Request):
     if credentials != expected_credentials:
         return PlainTextResponse("Invalid username or password", status_code=403)
     return PlainTextResponse("pong", status_code=200)
+
+
+@router.get("/{path:path}")  # Q3
+def get_unknown(path: str):
+    with open("templates/not_found.html", "r", encoding="utf-8") as file:
+        html_content = file.read()
+    return Response(content=html_content, status_code=404, media_type="text/html")

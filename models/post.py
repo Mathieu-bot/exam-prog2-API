@@ -15,4 +15,12 @@ class Post(BaseModel):
 post_list: List[Post] = []
 
 def serialized_posts():
-    return [post.model_dump() for post in post_list]
+    return [
+        {
+            "author": post.author,
+            "title": post.title,
+            "content": post.content,
+            "creation_datetime": post.creation_datetime.isoformat()
+        }
+        for post in post_list
+    ]
