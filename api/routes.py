@@ -54,7 +54,7 @@ def get_ping_auth(request: Request):
     except (base64.binascii.Error, UnicodeDecodeError, ValueError):
         return PlainTextResponse("Invalid authorization credentials", status_code=401)
 
-    expected_credentials = "user:secret"
+    expected_credentials = "admin:123456"
     if credentials != expected_credentials:
         return PlainTextResponse("Invalid username or password", status_code=403)
     return PlainTextResponse("pong", status_code=200)
